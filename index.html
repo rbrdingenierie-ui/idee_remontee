@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="https://rbrdingenierie-ui.github.io/accueil_outils/favicon.svg">
+<link rel="apple-touch-icon" href="https://rbrdingenierie-ui.github.io/accueil_outils/favicon.svg">
+<title>Signaler un dysfonctionnement ou une idée</title>
+<style>
+  :root {
+    --navy: #1F3864;
+    --navy-soft: #4A5C82;
+    --gold: #B08D57;
+    --orange: #E0591F;
+    --orange-soft: #FBEAE3;
+    --teal: #12796B;
+    --teal-soft: #E3F3F1;
+    --vert: #277649;
+    --vert-soft: #E4F3EA;
+    --rouge: #C0392B;
+    --rouge-soft: #FBE5E2;
+    --bg: #F7F8FA;
+    --white: #FFFFFF;
+    --track: #8592B0;
+    --a11y-scale: 1;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background: var(--bg); font-family: Arial, Helvetica, sans-serif; color: var(--navy); }
+  body { display:flex; justify-content:center; padding: 32px 16px 60px; }
+  .page { width:100%; max-width: 720px; }
+
+  header { text-align:center; margin-bottom: 20px; }
+  header h1 { font-size: calc(clamp(22px, 5vw, 28px) * var(--a11y-scale)); margin: 0 0 8px 0; }
+  header p { font-size: calc(15px * var(--a11y-scale)); color: var(--navy-soft); margin:0; }
+
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid var(--navy) !important;
+    outline-offset: 2px;
+  }
+
+  .skip-link {
+    position:absolute; left:-9999px; top:0; z-index:1000;
+    background:var(--navy); color:#FFFFFF; font-family:inherit; font-weight:700; font-size:14px;
+    padding:12px 20px; border-radius:0 0 10px 0; text-decoration:none;
+  }
+  .skip-link:focus { left:0; }
+
+  .back-to-hub {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:14px; font-weight:700; color:var(--navy);
+    background:#FFFFFF; border:2px solid var(--track); border-radius:999px;
+    padding:10px 18px; text-decoration:none; margin-bottom:16px; min-height:24px;
+  }
+  .back-to-hub:hover { border-color:var(--navy-soft); }
+  body.a11y-contrast .back-to-hub { border-color:#000000; color:#000000; }
+
+  .a11y-bar {
+    display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+    background: var(--white); border:2px solid var(--track); border-radius:14px;
+    padding: 12px 16px; margin-bottom: 24px;
+  }
+  /* une fois que l'apprenant descend dans la page, la barre reste accessible en haut.
+     Version compacte : elle ne doit pas manger l'ecran, surtout sur telephone. */
+  .a11y-bar.figee {
+    position:fixed; top:8px; left:50%; transform:translateX(-50%);
+    width:calc(100% - 20px); max-width:860px; z-index:1400;
+    padding:8px 12px; gap:7px; margin-bottom:0;
+    box-shadow:0 4px 18px rgba(31,56,100,0.18);
+  }
+  .a11y-bar.figee .a11y-toggle-btn { font-size:12px; padding:6px 11px; }
+  .a11y-bar.figee .a11y-bar-label { font-size:12px; }
+  .a11y-bar.figee .a11y-size-group { font-size:12px; }
+  .a11y-bar.figee .a11y-size-group button { width:30px; height:30px; font-size:13px; }
+
+  /* sur telephone, l'ecran est etroit : on reduit encore pour laisser voir le contenu */
+  @media (max-width: 620px) {
+    .a11y-bar.figee { padding:6px 8px; gap:5px; top:5px; }
+    .a11y-bar.figee .a11y-toggle-btn { font-size:11px; padding:5px 9px; }
+    .a11y-bar.figee .a11y-bar-label { font-size:11px; }
+    .a11y-bar.figee .a11y-size-group { font-size:11px; gap:4px; }
+    .a11y-bar.figee .a11y-size-group button { width:28px; height:28px; font-size:12px; }
+  }
+  /* remplace la barre dans le flux, pour que le contenu ne remonte pas d'un coup */
+  .a11y-bar-espace { display:none; }
+  .a11y-bar-espace.actif { display:block; }
+  .a11y-bar-label { font-size:13px; font-weight:800; color: var(--navy); margin-right:4px; }
+  .a11y-toggle-btn {
+    font-family:inherit; font-size:13px; font-weight:700; color: var(--navy-soft);
+    background: var(--white); border:2px solid var(--track); border-radius:999px;
+    padding: 8px 14px; cursor:pointer;
+  }
+  .a11y-toggle-btn:hover { border-color: var(--navy-soft); }
+  .a11y-toggle-btn[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color:#FFFFFF; }
+  .a11y-size-group { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color: var(--navy); }
+  .a11y-size-group button {
+    font-family:inherit; font-weight:800; font-size:14px; color: var(--navy);
+    background: var(--white); border:2px solid var(--navy-soft); border-radius:8px;
+    width:34px; height:34px; cursor:pointer;
+  }
+  .a11y-size-group button:hover { border-color: var(--navy); }
+
+  body.a11y-font, body.a11y-font * { font-family: Verdana, Geneva, sans-serif !important; }
+
+  .falc-simple-content { display:none; }
+  body.falc-mode .falc-normal-content { display:none; }
+  body.falc-mode .falc-simple-content { display:block; }
+  .falc-simple-content p { font-size: calc(16px * var(--a11y-scale)); line-height: 2; color:#000000; }
+
+  body.a11y-contrast { background:#FFFFFF; }
+  body.a11y-contrast .page { color:#000000; }
+  body.a11y-contrast .a11y-bar, body.a11y-contrast .form-panel, body.a11y-contrast .type-option { border-color:#000000 !important; }
+  body.a11y-contrast header p, body.a11y-contrast .field-label, body.a11y-contrast .field-hint { color:#000000 !important; }
+
+  .tts-btn {
+    display:block; margin:0 auto 22px; font-family:inherit; font-size:calc(13.5px * var(--a11y-scale)); font-weight:700;
+    color:var(--teal); background:var(--teal-soft); border:2px solid var(--teal); border-radius:999px;
+    padding:10px 20px; cursor:pointer; min-height:24px;
+  }
+  .tts-btn:hover { background:var(--teal); color:#FFFFFF; }
+  .tts-btn[aria-pressed="true"] { background:var(--teal); color:#FFFFFF; }
+  .tts-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .mentor-zone { text-align:center; margin-bottom:24px; }
+  .mentor-char {
+    width:100%; max-width:340px; margin:0 auto 16px; position:relative;
+    border-radius:18px; overflow:hidden;
+    background:linear-gradient(165deg, #16294D 0%, #1F3864 55%, #2C4A7C 100%);
+  }
+  .mentor-char svg { width:100%; height:auto; display:block; }
+
+  .mentor-sparkle {
+    opacity:0.35; transform-origin:center; transform-box:fill-box;
+    animation:mentor-sparkle-twinkle 2s ease-in-out infinite;
+  }
+  .mentor-sparkle-1 { animation-delay:0s; }
+  .mentor-sparkle-2 { animation-delay:0.35s; }
+  .mentor-sparkle-3 { animation-delay:0.7s; }
+  .mentor-sparkle-4 { animation-delay:1.05s; }
+  .mentor-sparkle-5 { animation-delay:0.5s; }
+  .mentor-sparkle-6 { animation-delay:0.85s; }
+  .mentor-sparkle-7 { animation-delay:1.2s; }
+  .mentor-sparkle-8 { animation-delay:1.5s; }
+  .mentor-sparkle-9 { animation-delay:1.75s; }
+  @keyframes mentor-sparkle-twinkle {
+    0%, 100% { opacity:0.25; transform:scale(0.75); }
+    50% { opacity:1; transform:scale(1.25); }
+  }
+  /* la cape ondule doucement, comme portee par un souffle */
+  .mentor-cape { transform-box:view-box; transform-origin:340px 330px; animation:cape-ondule 7.6s ease-in-out infinite; }
+  @keyframes cape-ondule {
+    0%, 100% { transform:skewX(0deg) scaleX(1); }
+    30%      { transform:skewX(1.4deg) scaleX(1.02); }
+    65%      { transform:skewX(-1.2deg) scaleX(0.99); }
+  }
+
+  /* la main gauche bouge legerement, decalee de la droite */
+  .mentor-hand-left { transform-box:fill-box; transform-origin:center; animation:main-gauche 6.9s ease-in-out infinite; }
+  @keyframes main-gauche {
+    0%, 100% { transform:translateY(0) rotate(0deg); }
+    35%      { transform:translateY(-5px) rotate(-6deg); }
+    70%      { transform:translateY(2px) rotate(4deg); }
+  }
+
+  /* reflet qui passe sur les lunettes, tres espace pour rester discret */
+  .mentor-lunette-reflet { animation:reflet-lunettes 11s ease-in-out infinite; }
+
+  /* ---------- gestes ponctuels ----------
+     Des mouvements rares et espaces : c'est leur irregularite qui donne
+     l'impression d'un personnage vivant plutot que d'une boucle. */
+
+  /* de temps en temps, il hoche la tete comme pour approuver */
+  .mentor-head-group { animation:mentor-head-talk 6.4s ease-in-out infinite, mentor-hoche 17s ease-in-out infinite; }
+  @keyframes mentor-hoche {
+    0%, 74%, 100% { transform:translateY(0); }
+    78%           { transform:translateY(7px); }
+    82%           { transform:translateY(-2px); }
+    86%           { transform:translateY(5px); }
+    90%           { transform:translateY(0); }
+  }
+
+  /* il s'incline legerement de cote, l'air songeur */
+  .mentor-body-group { animation:mentor-breathe 5.2s ease-in-out infinite, mentor-penche 23s ease-in-out infinite; }
+  @keyframes mentor-penche {
+    0%, 55%, 100% { transform:rotate(0deg); }
+    62%           { transform:rotate(-2.2deg); }
+    72%           { transform:rotate(-2deg); }
+    80%           { transform:rotate(0deg); }
+  }
+
+  /* la barbe suit les mouvements avec un leger retard */
+  .mentor-barbe { transform-box:view-box; transform-origin:340px 300px; animation:barbe-suit 6.9s ease-in-out infinite; }
+  @keyframes barbe-suit {
+    0%, 100% { transform:rotate(0deg); }
+    30%      { transform:rotate(1.6deg); }
+    70%      { transform:rotate(-1.4deg); }
+  }
+
+  /* le sabre s'allume brievement, comme une verification */
+  .sabre-led { animation:sabre-clignote 13s ease-in-out infinite; }
+  @keyframes sabre-clignote {
+    0%, 80%, 100% { opacity:1; }
+    84%, 88%      { opacity:0.25; }
+  }
+  @keyframes reflet-lunettes {
+    0%, 88%, 100% { opacity:0; }
+    92%           { opacity:0.55; }
+  }
+
+  /* le sabre oscille au rythme du corps */
+  .sabre-manche { transform-box:view-box; transform-origin:401px 500px; animation:sabre-balance 5.8s ease-in-out infinite; }
+  @keyframes sabre-balance {
+    0%, 100% { transform:rotate(0deg); }
+    40%      { transform:rotate(2.5deg); }
+    75%      { transform:rotate(-2deg); }
+  }
+
+
+  /* etoiles du ciel de Mnemosia, qui respirent a des rythmes differents */
+  .fond-etoile { fill:#FFFFFF; animation:etoile-respire 4s ease-in-out infinite; }
+  .fond-etoile:nth-of-type(3n)   { animation-duration:5.5s; animation-delay:0.7s; }
+  .fond-etoile:nth-of-type(3n+1) { animation-duration:6.5s; animation-delay:1.9s; }
+  @keyframes etoile-respire {
+    0%, 100% { opacity:0.25; }
+    50%      { opacity:0.9; }
+  }
+
+
+  /* ---------- mode "animations allegees" ----------
+     Retire les mouvements les plus voyants, garde ceux, tres doux, du personnage. */
+  body.anim-allegee .mentor-cape,
+  body.anim-allegee .mentor-hand-left,
+  body.anim-allegee .mentor-lunette-reflet,
+  body.anim-allegee .sabre-manche,
+  body.anim-allegee .mentor-barbe,
+  body.anim-allegee .sabre-led,
+  body.anim-allegee .fond-etoile,
+  body.anim-allegee .mentor-sparkle,
+  body.anim-allegee .halo-glow,
+  body.anim-allegee .mentor-body-group { animation:none !important; }
+  body.anim-allegee .shooting-star,
+  body.anim-allegee .spaceship { display:none !important; }
+  body.anim-allegee .fond-etoile { opacity:0.75; }
+  body.anim-allegee .mentor-sparkle { opacity:0.8; }
+
+  @media (prefers-reduced-motion: reduce) { .mentor-sparkle { animation:none; opacity:0.85; } }
+
+  .mentor-head-group {
+    transform-box:view-box; transform-origin:340px 330px;
+    animation:mentor-head-talk 4s ease-in-out infinite, mentor-hoche 17s ease-in-out infinite;
+  }
+  @keyframes mentor-head-talk {
+    0%, 100% { transform:rotate(0deg); }
+    25% { transform:rotate(-6deg); }
+    75% { transform:rotate(6deg); }
+  }
+  .mentor-hand-wave {
+    transform-box:view-box; transform-origin:440px 368px;
+    animation:mentor-hand-talk 4s ease-in-out infinite;
+  }
+  @keyframes mentor-hand-talk {
+    0%, 100% { transform:rotate(0deg); }
+    30% { transform:rotate(-16deg); }
+    70% { transform:rotate(13deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mentor-head-group, .mentor-hand-wave { animation:none; }
+  }
+
+  /* ---------- animations enrichies, identiques aux autres pages ----------
+     Aucune ne depasse 1 cycle par seconde : tres en dessous du seuil de 3 flashs
+     par seconde qui presente un risque pour les personnes epileptiques. */
+
+  .mentor-body-group {
+    transform-box:view-box; transform-origin:340px 500px;
+    animation:mentor-breathe 4.5s ease-in-out infinite, mentor-penche 23s ease-in-out infinite;
+  }
+  @keyframes mentor-breathe {
+    0%, 100% { transform:translateY(0) scaleY(1); }
+    50%      { transform:translateY(-4px) scaleY(1.012); }
+  }
+
+  .mentor-eye { transform-box:fill-box; transform-origin:center; animation:mentor-blink 6s ease-in-out infinite; }
+  .mentor-eye-right { animation-delay:0.06s; }
+  @keyframes mentor-blink {
+    0%, 92%, 100% { transform:scaleY(1); }
+    94%, 96%      { transform:scaleY(0.1); }
+  }
+
+  .halo-glow { animation:halo-pulse 5s ease-in-out infinite; transform-box:view-box; transform-origin:340px 260px; }
+  @keyframes halo-pulse {
+    0%, 100% { opacity:0.85; transform:scale(1); }
+    50%      { opacity:1;    transform:scale(1.06); }
+  }
+
+  .shooting-star { opacity:0; transform-box:view-box; animation:shooting-star 7s ease-in infinite; }
+  .shooting-star-2 { animation-delay:4.5s; }
+  @keyframes shooting-star {
+    0%        { opacity:0; transform:translate(0, 0) scale(0.6); }
+    6%        { opacity:1; }
+    22%       { opacity:1; transform:translate(-280px, 160px) scale(1); }
+    30%, 100% { opacity:0; transform:translate(-340px, 195px) scale(0.6); }
+  }
+
+  .spaceship { transform-box:view-box; animation:spaceship-cross 16s linear infinite; }
+  .spaceship-2 { animation-duration:21s; animation-delay:6s; }
+  @keyframes spaceship-cross {
+    0%   { opacity:0; transform:translateX(-120px); }
+    8%   { opacity:0.9; }
+    88%  { opacity:0.9; }
+    100% { opacity:0; transform:translateX(780px); }
+  }
+  .spaceship-body { animation:spaceship-bob 3s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+  @keyframes spaceship-bob {
+    0%, 100% { transform:translateY(0) rotate(0deg); }
+    50%      { transform:translateY(-3px) rotate(-2deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mentor-body-group, .mentor-eye, .halo-glow, .spaceship-body { animation:none !important; }
+    .shooting-star, .spaceship { display:none; }
+  }
+
+  .mentor-message {
+    font-size:calc(14.5px * var(--a11y-scale)); color:var(--navy); font-weight:700; line-height:1.6;
+    max-width:480px; margin:0 auto;
+  }
+
+  .form-panel {
+    background:var(--white); border:2px solid var(--track); border-radius:18px; padding:24px; margin-bottom:20px;
+  }
+
+  .thank-you-panel {
+    display:none; text-align:center;
+    background:var(--white); border:2px solid var(--vert); border-radius:18px; padding:32px 24px; margin-bottom:20px;
+  }
+  .thank-you-panel.show { display:block; }
+  .thank-you-icon { font-size:52px; display:block; margin-bottom:14px; }
+  .thank-you-char { width:150px; max-width:55%; margin:0 auto 14px; }
+  .thank-you-char svg { width:100%; height:auto; display:block; }
+  .thank-you-title { font-size:calc(19px * var(--a11y-scale)); font-weight:800; color:var(--vert); margin-bottom:10px; }
+  .thank-you-text { font-size:calc(14.5px * var(--a11y-scale)); color:var(--navy); line-height:1.6; max-width:440px; margin:0 auto 22px; }
+  .thank-you-again-btn {
+    font-family:inherit; font-size:calc(13.5px * var(--a11y-scale)); font-weight:700; color:var(--navy);
+    background:var(--bg); border:2px solid var(--track); border-radius:999px; padding:11px 22px; cursor:pointer; min-height:24px;
+  }
+  .thank-you-again-btn:hover { border-color:var(--navy); }
+  body.a11y-contrast .thank-you-panel { border-color:#000000; }
+  body.a11y-contrast .thank-you-title, body.a11y-contrast .thank-you-text { color:#000000 !important; }
+
+  .field-block { margin-bottom:20px; }
+  .field-block:last-child { margin-bottom:0; }
+  .field-label { display:block; font-size:calc(14px * var(--a11y-scale)); font-weight:800; color:var(--navy); margin-bottom:8px; }
+  .field-hint { display:block; font-size:calc(12px * var(--a11y-scale)); color:var(--navy-soft); font-weight:400; margin-top:4px; }
+
+  .type-options { display:flex; gap:12px; flex-wrap:wrap; }
+  .type-option {
+    flex:1; min-width:140px; position:relative;
+  }
+  .type-option input[type="radio"] {
+    position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;
+  }
+  .type-option label {
+    display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;
+    border:2px solid var(--track); border-radius:14px; padding:16px 12px; cursor:pointer;
+    font-size:calc(14px * var(--a11y-scale)); font-weight:700; color:var(--navy-soft);
+  }
+  .type-option .type-icon { font-size:26px; }
+  .type-option input[type="radio"]:checked + label {
+    border-color:var(--navy); background:var(--teal-soft); color:var(--navy);
+  }
+  .type-option input[type="radio"]:focus-visible + label { outline:3px solid var(--navy); outline-offset:2px; }
+
+  .field-select, .field-input, .field-textarea {
+    width:100%; font-family:inherit; font-size:calc(15px * var(--a11y-scale)); color:var(--navy);
+    border:2px solid var(--track); border-radius:12px; padding:12px 14px; background:var(--white);
+  }
+  .field-select:focus, .field-input:focus, .field-textarea:focus { outline:none; border-color:var(--navy); }
+  .field-textarea { min-height:130px; resize:vertical; line-height:1.5; font-family:inherit; }
+
+  .submit-btn {
+    display:block; width:100%; font-family:inherit; font-size:calc(15.5px * var(--a11y-scale)); font-weight:700; color:#FFFFFF;
+    background:var(--navy); border:none; border-radius:12px; padding:15px; cursor:pointer; min-height:24px;
+  }
+  .submit-btn:hover { filter:brightness(1.15); }
+  .submit-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .form-feedback {
+    text-align:center; font-size:calc(13.5px * var(--a11y-scale)); font-weight:700; color:var(--vert);
+    background:var(--vert-soft); border-radius:12px; padding:12px; margin-top:14px; display:none;
+  }
+  .form-feedback.show { display:block; }
+  .form-feedback.error { color:var(--rouge); background:var(--rouge-soft); }
+
+  .privacy-note { font-size:calc(12px * var(--a11y-scale)); color:var(--navy-soft); text-align:center; margin-top:14px; line-height:1.5; }
+
+  .copy-fallback { margin-top:14px; padding-top:14px; border-top:2px dashed var(--track); }
+  .copy-fallback[hidden] { display:none; }
+  .copy-fallback .field-textarea { min-height:110px; font-size:calc(13px * var(--a11y-scale)); margin-bottom:10px; }
+  .copy-fallback-btn {
+    display:block; width:100%; font-family:inherit; font-size:calc(14px * var(--a11y-scale)); font-weight:700; color:var(--navy);
+    background:var(--bg); border:2px solid var(--track); border-radius:12px; padding:12px; cursor:pointer; min-height:24px; margin-bottom:8px;
+  }
+  .copy-fallback-btn:hover { border-color:var(--navy); }
+
+  .sr-only {
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  footer { text-align:center; font-size:calc(12px * var(--a11y-scale)); color: var(--navy-soft); margin-top: 26px; }
+</style>
+</head>
+<body>
+
+<svg style="position:absolute; width:0; height:0; overflow:hidden;" aria-hidden="true">
+  <symbol id="mentorChar" viewBox="0 0 680 620">
+<defs>
+<radialGradient id="glowSym" cx="50%" cy="35%" r="65%">
+<stop offset="0%" stop-color="#FFF6E0"/>
+<stop offset="100%" stop-color="#FFF6E0" stop-opacity="0"/>
+</radialGradient>
+</defs>
+<circle class="halo-glow" cx="340" cy="260" r="230" fill="url(#glowSym)"/>
+<ellipse cx="340" cy="580" rx="150" ry="20" fill="#1F3864" opacity="0.08"/>
+<g class="mentor-body-group">
+<!-- cape : descend jusqu'en bas de l'image, dans une teinte plus claire que le fond -->
+<g class="mentor-cape">
+<path d="M300 322 Q250 336 226 400 Q200 470 190 620 L490 620 Q480 470 454 400 Q430 336 380 322 Z" fill="#3A5A8F"/>
+<path d="M300 322 Q262 340 244 396 Q222 466 214 620 L262 620 Q268 470 284 402 Q296 348 316 330 Z" fill="#2C4A7C"/>
+<path d="M380 322 Q418 340 436 396 Q458 466 466 620 L418 620 Q412 470 396 402 Q384 348 364 330 Z" fill="#2C4A7C"/>
+</g>
+<!-- pantalon, visible sous la tunique -->
+<path d="M262 470 L418 470 L424 620 L352 620 L340 520 L328 620 L256 620 Z" fill="#101F3C"/>
+<!-- tunique -->
+<path d="M240 430 Q240 330 340 330 Q440 330 440 430 L448 500 Q448 508 440 508 L240 508 Q232 508 232 500 Z" fill="#1F3864"/>
+<path d="M300 350 Q340 365 380 350 L388 508 L292 508 Z" fill="#16294D"/>
+<!-- ceinture -->
+<rect x="232" y="480" width="216" height="26" rx="5" fill="#5C4326"/>
+<rect x="322" y="476" width="36" height="34" rx="6" fill="#B08D57"/>
+<rect x="330" y="486" width="20" height="14" rx="3" fill="#8C6A3D"/>
+<circle cx="340" cy="380" r="5" fill="#B08D57"/>
+<circle cx="340" cy="410" r="5" fill="#B08D57"/>
+<circle cx="340" cy="440" r="5" fill="#B08D57"/>
+
+<!-- manche de sabre laser, accroche a la ceinture -->
+<g class="sabre-manche">
+  <path d="M404 496 Q400 502 402 510" stroke="#5C4326" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <rect x="392" y="506" width="18" height="66" rx="6" fill="#8592B0"/>
+  <rect x="392" y="506" width="18" height="10" rx="5" fill="#B08D57"/>
+  <rect x="392" y="524" width="18" height="4" fill="#4A5C82"/>
+  <rect x="392" y="534" width="18" height="4" fill="#4A5C82"/>
+  <rect x="392" y="544" width="18" height="4" fill="#4A5C82"/>
+  <rect x="392" y="560" width="18" height="8" rx="4" fill="#B08D57"/>
+  <circle class="sabre-led" cx="401" cy="518" r="3.5" fill="#C0392B"/>
+</g>
+<ellipse class="mentor-hand-left" cx="248" cy="474" rx="23" ry="20" fill="#E8B892"/>
+<g class="mentor-hand-wave">
+<ellipse cx="440" cy="474" rx="24" ry="21" fill="#E8B892"/>
+</g>
+<g class="mentor-head-group">
+<circle cx="340" cy="255" r="88" fill="#F0C49A"/>
+<path d="M255 235 Q252 160 340 155 Q428 160 425 235 Q425 200 340 195 Q255 200 255 235 Z" fill="#DADEE3"/>
+<path d="M255 225 Q248 260 262 290" fill="none" stroke="#DADEE3" stroke-width="14" stroke-linecap="round"/>
+<path d="M425 225 Q432 260 418 290" fill="none" stroke="#DADEE3" stroke-width="14" stroke-linecap="round"/>
+<circle cx="303" cy="260" r="22" fill="none" stroke="#B08D57" stroke-width="4"/>
+<circle cx="377" cy="260" r="22" fill="none" stroke="#B08D57" stroke-width="4"/>
+<g class="mentor-lunette-reflet" opacity="0">
+  <path d="M292 250 L306 246 L300 268 L286 272 Z" fill="#FFFFFF"/>
+  <path d="M366 250 L380 246 L374 268 L360 272 Z" fill="#FFFFFF"/>
+</g>
+<line x1="325" y1="258" x2="355" y2="258" stroke="#B08D57" stroke-width="4"/>
+<line x1="281" y1="256" x2="270" y2="252" stroke="#B08D57" stroke-width="4"/>
+<line x1="399" y1="256" x2="410" y2="252" stroke="#B08D57" stroke-width="4"/>
+<circle class="mentor-eye" cx="303" cy="260" r="4" fill="#3A2A1E"/>
+<circle class="mentor-eye mentor-eye-right" cx="377" cy="260" r="4" fill="#3A2A1E"/>
+<path d="M290 240 Q303 232 316 240" fill="none" stroke="#8A6642" stroke-width="3" stroke-linecap="round"/>
+<path d="M364 240 Q377 232 390 240" fill="none" stroke="#8A6642" stroke-width="3" stroke-linecap="round"/>
+<path d="M300 300 Q340 322 380 300" fill="none" stroke="#B5754A" stroke-width="4" stroke-linecap="round"/>
+<path class="mentor-barbe" d="M258 300 Q262 340 300 355 Q340 368 380 355 Q418 340 422 300" fill="#DADEE3"/>
+<path d="M270 200 Q260 175 275 155" fill="none" stroke="#DADEE3" stroke-width="10" stroke-linecap="round"/>
+<path d="M410 200 Q420 175 405 155" fill="none" stroke="#DADEE3" stroke-width="10" stroke-linecap="round"/>
+<circle cx="340" cy="140" r="10" fill="#B08D57"/>
+<path d="M340 130 L344 118 L336 118 Z" fill="#B08D57"/>
+</g>
+</g>
+  </symbol>
+</svg>
+
+<a href="#main" class="skip-link">Aller directement au contenu</a>
+
+<div class="page">
+  <a href="https://rbrdingenierie-ui.github.io/accueil_outils/" class="back-to-hub"><span aria-hidden="true">←</span> Retour à mon espace</a>
+
+  <div class="a11y-bar-espace" id="a11yBarEspace" aria-hidden="true"></div>
+  <div class="a11y-bar" id="a11yBar" role="region" aria-label="Options d'accessibilité">
+    <span class="a11y-bar-label">♿ Accessibilité</span>
+    <button type="button" id="a11yFontBtn" class="a11y-toggle-btn" aria-pressed="false">🔤 Police adaptée</button>
+    <button type="button" id="a11yContrastBtn" class="a11y-toggle-btn" aria-pressed="false">◐ Contraste renforcé</button>
+    <button type="button" id="falcModeBtn" class="a11y-toggle-btn" aria-pressed="false" title="Facile à Lire et à Comprendre : simplifie le texte de la page">📖 Mode FALC</button>
+    <button type="button" id="hoverReadBtn" class="a11y-toggle-btn" aria-pressed="false" title="Lit à voix haute le contenu de la page quand la souris passe dessus">🔊 Lecture au survol</button>
+    <button type="button" id="animAllegeeBtn" class="a11y-toggle-btn" aria-pressed="false" title="Réduit les mouvements à l'écran : le personnage et le décor bougent beaucoup moins">🎬 Alléger les animations</button>
+    <div class="a11y-size-group" role="group" aria-label="Taille du texte">
+      <span>Taille du texte</span>
+      <button type="button" id="a11ySizeDown" class="a11y-size-btn" aria-label="Réduire la taille du texte">A−</button>
+      <button type="button" id="a11ySizeReset" class="a11y-size-btn" aria-label="Taille du texte par défaut">A</button>
+      <button type="button" id="a11ySizeUp" class="a11y-size-btn" aria-label="Agrandir la taille du texte">A+</button>
+    </div>
+  </div>
+
+  <main id="main" tabindex="-1">
+  <header>
+    <h1><span aria-hidden="true">💬</span> Signaler un dysfonctionnement ou une idée</h1>
+    <div class="falc-normal-content"><p>Un outil ne fonctionne pas comme prévu ? Une idée pour améliorer ton espace de révision ? Envoie-nous ton message.</p></div>
+    <div class="falc-simple-content"><p>Un outil ne marche pas bien ?<br>Tu as une idée ?<br>Envoie ton message.</p></div>
+  </header>
+
+  <div class="mentor-zone">
+    <div class="mentor-char" aria-hidden="true">
+      <svg viewBox="0 0 680 620">
+        <circle class="fond-etoile" cx="70" cy="70" r="2.5"/>
+        <circle class="fond-etoile" cx="180" cy="40" r="1.8"/>
+        <circle class="fond-etoile" cx="300" cy="85" r="2.2"/>
+        <circle class="fond-etoile" cx="430" cy="45" r="1.6"/>
+        <circle class="fond-etoile" cx="560" cy="75" r="2.6"/>
+        <circle class="fond-etoile" cx="640" cy="140" r="1.9"/>
+        <circle class="fond-etoile" cx="40" cy="180" r="2.1"/>
+        <circle class="fond-etoile" cx="620" cy="250" r="2.4"/>
+        <circle class="fond-etoile" cx="55" cy="300" r="1.7"/>
+        <circle class="fond-etoile" cx="655" cy="390" r="2.2"/>
+        <circle class="fond-etoile" cx="35" cy="420" r="2.5"/>
+        <circle class="fond-etoile" cx="600" cy="520" r="1.8"/>
+        <circle class="fond-etoile" cx="120" cy="560" r="2.3"/>
+        <circle class="fond-etoile" cx="480" cy="580" r="1.6"/>
+        <circle class="fond-etoile" cx="250" cy="600" r="2"/>
+
+        <defs>
+          <radialGradient id="ideeGlow" cx="50%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#FFF6E0"/>
+            <stop offset="100%" stop-color="#FFF6E0" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="340" cy="260" r="260" fill="url(#ideeGlow)"/>
+        <path class="mentor-sparkle mentor-sparkle-1" d="M100 80 l9 24 24 9 -24 9 -9 24 -9 -24 -24 -9 24 -9 z" fill="#B08D57"/>
+        <path class="mentor-sparkle mentor-sparkle-2" d="M580 110 l8 21 21 8 -21 8 -8 21 -8 -21 -21 -8 21 -8 z" fill="#168F7F"/>
+        <path class="mentor-sparkle mentor-sparkle-3" d="M70 330 l7 18 18 7 -18 7 -7 18 -7 -18 -18 -7 18 -7 z" fill="#E0591F"/>
+        <path class="mentor-sparkle mentor-sparkle-4" d="M600 360 l8 21 21 8 -21 8 -8 21 -8 -21 -21 -8 21 -8 z" fill="#B08D57"/>
+        <path class="mentor-sparkle mentor-sparkle-5" d="M140 500 l7 18 18 7 -18 7 -7 18 -7 -18 -18 -7 18 -7 z" fill="#168F7F"/>
+        <path class="mentor-sparkle mentor-sparkle-6" d="M560 500 l6 16 16 6 -16 6 -6 16 -6 -16 -16 -6 16 -6 z" fill="#C0392B"/>
+        <path class="mentor-sparkle mentor-sparkle-7" d="M30 220 l5 14 14 5 -14 5 -5 14 -5 -14 -14 -5 14 -5 z" fill="#8A5CB0"/>
+        <path class="mentor-sparkle mentor-sparkle-8" d="M630 240 l4 12 12 4 -12 4 -4 12 -4 -12 -12 -4 12 -4 z" fill="#E0591F"/>
+        <path class="mentor-sparkle mentor-sparkle-9" d="M90 450 l3 9 9 3 -9 3 -3 9 -3 -9 -9 -3 9 -3 z" fill="#168F7F"/>
+        <g class="shooting-star">
+          <line x1="600" y1="60" x2="672" y2="12" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+          <circle cx="600" cy="60" r="7" fill="#FFF6E0"/>
+        </g>
+        <g class="shooting-star shooting-star-2">
+          <line x1="640" y1="330" x2="700" y2="292" stroke="#B08D57" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+          <circle cx="640" cy="330" r="5" fill="#B08D57"/>
+        </g>
+        <g class="spaceship">
+          <g class="spaceship-body" transform="translate(10, 265)">
+            <ellipse cx="0" cy="0" rx="52" ry="16" fill="#4A5C82"/>
+            <ellipse cx="0" cy="-10" rx="28" ry="16" fill="#8592B0"/>
+            <circle cx="0" cy="-12" r="10" fill="#E3F3F1" opacity="0.95"/>
+            <circle cx="-28" cy="4" r="5" fill="#E0591F"/>
+            <circle cx="28" cy="4" r="5" fill="#168F7F"/>
+            <path d="M-52 4 L-80 12 L-52 16 Z" fill="#B08D57" opacity="0.75"/>
+          </g>
+        </g>
+        <g class="spaceship spaceship-2">
+          <g class="spaceship-body" transform="translate(30, 470)">
+            <ellipse cx="0" cy="0" rx="38" ry="12" fill="#4A5C82" opacity="0.9"/>
+            <ellipse cx="0" cy="-8" rx="20" ry="12" fill="#8592B0" opacity="0.9"/>
+            <circle cx="0" cy="-9" r="7" fill="#FFF6E0" opacity="0.95"/>
+            <circle cx="-20" cy="3" r="4" fill="#C23B6B"/>
+            <path d="M-38 2 L-62 8 L-38 12 Z" fill="#B08D57" opacity="0.65"/>
+          </g>
+        </g>
+        <use href="#mentorChar" width="680" height="620"/>
+      </svg>
+    </div>
+    <div class="falc-normal-content"><p class="mentor-message">Chaque retour, précieux il est.<br>Grâce à toi, meilleurs les outils deviendront.</p></div>
+    <div class="falc-simple-content"><p class="mentor-message">Ton message nous aide beaucoup.<br>Merci de le partager.</p></div>
+  </div>
+
+  <div class="form-panel">
+    <form id="feedbackForm">
+      <div class="field-block">
+        <span class="field-label" id="typeLabel">Tu veux...</span>
+        <div class="type-options" role="radiogroup" aria-labelledby="typeLabel">
+          <div class="type-option">
+            <input type="radio" name="type" id="typeBug" value="Dysfonctionnement" checked>
+            <label for="typeBug"><span class="type-icon" aria-hidden="true">🐛</span> Signaler un problème</label>
+          </div>
+          <div class="type-option">
+            <input type="radio" name="type" id="typeIdee" value="Idée">
+            <label for="typeIdee"><span class="type-icon" aria-hidden="true">💡</span> Proposer une idée</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label" for="outilSelect">Quel outil est concerné ?</label>
+        <select id="outilSelect" class="field-select">
+          <option value="Général / tout l'espace">Général / tout l'espace</option>
+          <option value="ToDo List">ToDo List</option>
+          <option value="Agenda de révision">Agenda de révision</option>
+          <option value="Planning hebdomadaire">Planning hebdomadaire</option>
+          <option value="Fiche studiométrique">Fiche studiométrique</option>
+          <option value="Minuteur visuel">Minuteur visuel</option>
+          <option value="Flashcards">Flashcards</option>
+          <option value="Carte mentale">Carte mentale</option>
+          <option value="Sketchnote">Sketchnote</option>
+          <option value="Memory">Memory</option>
+          <option value="Mots croisés">Mots croisés</option>
+          <option value="Grille d'auto-évaluation">Grille d'auto-évaluation</option>
+          <option value="Grille d'analyse">Grille d'analyse</option>
+          <option value="Podcast">Podcast</option>
+          <option value="Bande dessinée">Bande dessinée</option>
+          <option value="Cours en musique">Cours en musique</option>
+          <option value="Énigme finale">Énigme finale</option>
+        </select>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label" for="descriptionField">Ton message</label>
+        <textarea id="descriptionField" class="field-textarea" required
+          placeholder="Décris le problème rencontré, ou explique ton idée..."></textarea>
+        <span class="field-hint">Pour un problème : dis ce que tu as fait, et ce qui s'est passé au lieu de ce que tu attendais.</span>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label" for="nomField">Ton prénom (facultatif)</label>
+        <input type="text" id="nomField" class="field-input" placeholder="Pour qu'on sache qui a écrit" autocomplete="off">
+        <span class="field-hint">Tu peux laisser ce champ vide si tu préfères rester anonyme.</span>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label" for="emailField">Ton e-mail (facultatif)</label>
+        <input type="email" id="emailField" class="field-input" placeholder="Pour qu'on puisse te répondre" autocomplete="off">
+        <span class="field-hint">Laisse ce champ vide si tu ne souhaites pas être recontacté·e.</span>
+      </div>
+
+      <button type="submit" class="submit-btn">📤 Envoyer</button>
+      <p class="form-feedback" id="formFeedback" role="status"></p>
+
+      <div class="copy-fallback" id="copyFallback" hidden>
+        <label class="field-label" for="copyFallbackText">Ton message (à copier)</label>
+        <textarea class="field-textarea" id="copyFallbackText" readonly></textarea>
+        <button type="button" class="copy-fallback-btn" id="copyFallbackBtn">📋 Copier le message</button>
+        <span class="field-hint">Collez-le ensuite dans un e-mail à rb.rdingenierie@gmail.com, ou partagez-le autrement.</span>
+      </div>
+
+      <p class="privacy-note">Ton message est envoyé directement, sans passer par ta messagerie personnelle.</p>
+    </form>
+  </div>
+
+  <div class="thank-you-panel" id="thankYouPanel" role="status" tabindex="-1">
+    <div class="thank-you-char" aria-hidden="true">
+      <svg viewBox="0 0 680 620">
+        <path class="mentor-sparkle mentor-sparkle-1" d="M120 90 l6 16 16 6 -16 6 -6 16 -6 -16 -16 -6 16 -6 z" fill="#B08D57"/>
+        <path class="mentor-sparkle mentor-sparkle-2" d="M560 130 l5 13 13 5 -13 5 -5 13 -5 -13 -13 -5 13 -5 z" fill="#168F7F"/>
+        <path class="mentor-sparkle mentor-sparkle-3" d="M100 320 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4 z" fill="#E0591F"/>
+        <path class="mentor-sparkle mentor-sparkle-4" d="M580 340 l5 13 13 5 -13 5 -5 13 -5 -13 -13 -5 13 -5 z" fill="#8A5CB0"/>
+        <path class="mentor-sparkle mentor-sparkle-5" d="M170 480 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4 z" fill="#B08D57"/>
+        <path class="mentor-sparkle mentor-sparkle-6" d="M60 200 l5 14 14 5 -14 5 -5 14 -5 -14 -14 -5 14 -5 z" fill="#C23B6B"/>
+        <path class="mentor-sparkle mentor-sparkle-7" d="M610 230 l4 12 12 4 -12 4 -4 12 -4 -12 -12 -4 12 -4 z" fill="#168F7F"/>
+        <path class="mentor-sparkle mentor-sparkle-8" d="M540 460 l6 15 15 6 -15 6 -6 15 -6 -15 -15 -6 15 -6 z" fill="#E0591F"/>
+        <path class="mentor-sparkle mentor-sparkle-9" d="M90 450 l3 9 9 3 -9 3 -3 9 -3 -9 -9 -3 9 -3 z" fill="#B08D57"/>
+        <use href="#mentorChar" width="680" height="620"/>
+      </svg>
+    </div>
+    <div class="thank-you-title">Merci pour ton message !</div>
+    <div class="falc-normal-content"><p class="thank-you-text">Ton message a été envoyé directement. On reviendra vers toi si besoin de précisions.</p></div>
+    <div class="falc-simple-content"><p class="thank-you-text">Ton message est envoyé.<br>On te répondra si besoin.</p></div>
+    <button type="button" class="thank-you-again-btn" id="sendAnotherBtn">✏️ Envoyer un autre message</button>
+  </div>
+
+  <footer>Benjamin RICHARD - Tous droits réservés</footer>
+  </main>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+(function () {
+  // ---- barre d'accessibilite ----
+  const A11Y_PREFS_KEY = 'idee-remontee-a11y-prefs-v1';
+  let a11yPrefs = { font: false, contrast: false, scale: 1, falc: false, hoverRead: false, animAllegee: false };
+  try {
+    const rawPrefs = localStorage.getItem(A11Y_PREFS_KEY);
+    if (rawPrefs) a11yPrefs = Object.assign(a11yPrefs, JSON.parse(rawPrefs));
+  } catch (e) {}
+  function saveA11yPrefs() {
+    try { localStorage.setItem(A11Y_PREFS_KEY, JSON.stringify(a11yPrefs)); } catch (e) {}
+  }
+  function applyA11yPrefs() {
+    document.body.classList.toggle('a11y-font', a11yPrefs.font);
+    document.body.classList.toggle('a11y-contrast', a11yPrefs.contrast);
+    document.body.classList.toggle('falc-mode', a11yPrefs.falc);
+    document.documentElement.style.setProperty('--a11y-scale', a11yPrefs.scale);
+    document.getElementById('a11yFontBtn').setAttribute('aria-pressed', a11yPrefs.font ? 'true' : 'false');
+    document.getElementById('a11yContrastBtn').setAttribute('aria-pressed', a11yPrefs.contrast ? 'true' : 'false');
+    document.getElementById('falcModeBtn').setAttribute('aria-pressed', a11yPrefs.falc ? 'true' : 'false');
+    document.getElementById('hoverReadBtn').setAttribute('aria-pressed', a11yPrefs.hoverRead ? 'true' : 'false');
+    document.body.classList.toggle('anim-allegee', a11yPrefs.animAllegee);
+    const bA = document.getElementById('animAllegeeBtn');
+    if (bA) bA.setAttribute('aria-pressed', a11yPrefs.animAllegee ? 'true' : 'false');
+  }
+  document.getElementById('a11yFontBtn').addEventListener('click', () => { a11yPrefs.font = !a11yPrefs.font; applyA11yPrefs(); saveA11yPrefs(); });
+  document.getElementById('a11yContrastBtn').addEventListener('click', () => { a11yPrefs.contrast = !a11yPrefs.contrast; applyA11yPrefs(); saveA11yPrefs(); });
+  document.getElementById('falcModeBtn').addEventListener('click', () => {
+    a11yPrefs.falc = !a11yPrefs.falc;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    applyA11yPrefs(); saveA11yPrefs();
+  });
+  document.getElementById('hoverReadBtn').addEventListener('click', () => {
+    a11yPrefs.hoverRead = !a11yPrefs.hoverRead;
+    if (!a11yPrefs.hoverRead && window.speechSynthesis) window.speechSynthesis.cancel();
+    applyA11yPrefs(); saveA11yPrefs();
+  });
+
+  // ---- bouton "alleger les animations" ----
+  // Le reglage vaut pour toutes les pages : il est memorise avec les autres
+  // preferences d'accessibilite.
+  const btnAnimAllegee = document.getElementById('animAllegeeBtn');
+  if (btnAnimAllegee) {
+    btnAnimAllegee.addEventListener('click', () => {
+      a11yPrefs.animAllegee = !a11yPrefs.animAllegee;
+      applyA11yPrefs(); saveA11yPrefs();
+    });
+  }
+
+  document.getElementById('a11ySizeUp').addEventListener('click', () => { a11yPrefs.scale = Math.min(1.6, Math.round((a11yPrefs.scale + 0.15) * 100) / 100); applyA11yPrefs(); saveA11yPrefs(); });
+  document.getElementById('a11ySizeDown').addEventListener('click', () => { a11yPrefs.scale = Math.max(0.85, Math.round((a11yPrefs.scale - 0.15) * 100) / 100); applyA11yPrefs(); saveA11yPrefs(); });
+  document.getElementById('a11ySizeReset').addEventListener('click', () => { a11yPrefs.scale = 1; applyA11yPrefs(); saveA11yPrefs(); });
+  applyA11yPrefs();
+  // ---- barre d'accessibilite figee au defilement ----
+  // Elle reste atteignable a tout moment : un apprenant qui a besoin d'agrandir le texte
+  // ne doit pas avoir a remonter en haut de page pour le faire.
+  (function figerBarreA11y() {
+    const barre = document.getElementById('a11yBar');
+    const espace = document.getElementById('a11yBarEspace');
+    if (!barre || !espace) return;
+
+    let hauteurBarre = 0;
+    let positionDeclenchement = 0;
+
+    function mesurer() {
+      // mesure faite hors etat fige, sinon la position serait faussee
+      if (barre.classList.contains('figee')) return;
+      hauteurBarre = barre.offsetHeight;
+      positionDeclenchement = barre.getBoundingClientRect().top + window.scrollY;
+    }
+
+    function verifier() {
+      if (window.scrollY > positionDeclenchement) {
+        if (!barre.classList.contains('figee')) {
+          espace.style.height = hauteurBarre + 'px';
+          espace.classList.add('actif');
+          barre.classList.add('figee');
+        }
+      } else if (barre.classList.contains('figee')) {
+        barre.classList.remove('figee');
+        espace.classList.remove('actif');
+        mesurer();
+      }
+    }
+
+    mesurer();
+    window.addEventListener('scroll', verifier, { passive: true });
+    window.addEventListener('resize', () => {
+      // au redimensionnement, la barre change de hauteur : on remesure a froid
+      const etaitFigee = barre.classList.contains('figee');
+      barre.classList.remove('figee');
+      espace.classList.remove('actif');
+      mesurer();
+      if (etaitFigee) verifier();
+    });
+  })();
+
+  // ---- lecture au survol, sur l'integralite de la page ----
+  function getVisibleHoverText(el) {
+    const isFalc = document.body.classList.contains('falc-mode');
+    if (isFalc && el.closest('.falc-normal-content')) return '';
+    if (!isFalc && el.closest('.falc-simple-content')) return '';
+    if (el.tagName === 'SELECT') {
+      const selected = el.options[el.selectedIndex];
+      return (el.getAttribute('aria-label') ? el.getAttribute('aria-label') + ' : ' : '') + (selected ? selected.textContent.trim() : '');
+    }
+    if (el.matches('input, textarea')) {
+      return (el.getAttribute('aria-label') || el.placeholder || '').trim();
+    }
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll(isFalc ? '.falc-normal-content' : '.falc-simple-content').forEach(n => n.remove());
+    clone.querySelectorAll('[aria-hidden="true"], .sr-only').forEach(n => n.remove());
+    return clone.textContent.replace(/\s+/g, ' ').trim();
+  }
+  if ('speechSynthesis' in window) {
+    const HOVER_READ_SELECTOR = 'h1, p, .mentor-message, label, .field-label, select, input, textarea, .field-hint, .submit-btn, .copy-fallback-btn, .privacy-note, .thank-you-title, .thank-you-text, .thank-you-again-btn, .back-to-hub, .a11y-toggle-btn, .a11y-bar-label, .type-option, .a11y-size-group button';
+    document.querySelectorAll(HOVER_READ_SELECTOR).forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        if (!a11yPrefs.hoverRead) return;
+        window.speechSynthesis.cancel();
+        const text = getVisibleHoverText(el);
+        if (!text) return;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'fr-FR'; utter.rate = 0.95;
+        window.speechSynthesis.speak(utter);
+      });
+      el.addEventListener('mouseleave', () => { if (window.speechSynthesis) window.speechSynthesis.cancel(); });
+      el.addEventListener('focusin', () => { if (a11yPrefs.hoverRead) el.dispatchEvent(new Event('mouseenter')); });
+      el.addEventListener('focusout', () => { if (window.speechSynthesis) window.speechSynthesis.cancel(); });
+    });
+  }
+
+  // ---- configuration EmailJS : identifiants a remplacer une fois votre compte cree ----
+  // 1. Creez un compte gratuit sur https://www.emailjs.com
+  // 2. Dans "Email Services", connectez votre Gmail -> copiez le "Service ID" ci-dessous
+  // 3. Dans "Email Templates", creez un modele utilisant les variables {{type}}, {{outil}}, {{message}}, {{nom}}
+  //    -> copiez le "Template ID" ci-dessous
+  // 4. Dans "Account" -> "General", copiez votre "Public Key" ci-dessous
+  const EMAILJS_PUBLIC_KEY = '9hKSDJWp-S_jECSFb';
+  const EMAILJS_SERVICE_ID = 'service_0gofopc';
+  const EMAILJS_TEMPLATE_ID = 'template_b4yec2e';
+  try { if (window.emailjs) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch (e) {}
+
+  const DEST_EMAIL = 'rb.rdingenierie@gmail.com';
+  const form = document.getElementById('feedbackForm');
+  const feedback = document.getElementById('formFeedback');
+  const submitBtn = form.querySelector('.submit-btn');
+
+  function showCopyFallback(type, outil, description, nom, email) {
+    const lines = [
+      `Type : ${type}`,
+      `Outil concerné : ${outil}`,
+      '',
+      'Message :',
+      description,
+      '',
+      nom ? `De la part de : ${nom}` : 'Message envoyé sans nom (anonyme).',
+      email ? `E-mail pour réponse : ${email}` : "Pas d'e-mail fourni pour une réponse."
+    ];
+    const fallback = document.getElementById('copyFallback');
+    document.getElementById('copyFallbackText').value = lines.join('\n');
+    fallback.hidden = false;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const description = document.getElementById('descriptionField').value.trim();
+    if (!description) {
+      feedback.textContent = "Merci de décrire ton problème ou ton idée avant d'envoyer.";
+      feedback.className = 'form-feedback error show';
+      document.getElementById('descriptionField').focus();
+      return;
+    }
+    const type = document.querySelector('input[name="type"]:checked').value;
+    const outil = document.getElementById('outilSelect').value;
+    const nom = document.getElementById('nomField').value.trim();
+    const email = document.getElementById('emailField').value.trim();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = '📤 Envoi en cours...';
+    feedback.className = 'form-feedback';
+    document.getElementById('copyFallback').hidden = true;
+
+    if (!window.emailjs || EMAILJS_PUBLIC_KEY.startsWith('REMPLACER')) {
+      // EmailJS pas encore configure : proposer directement le repli copier-coller
+      submitBtn.disabled = false;
+      submitBtn.textContent = '📤 Envoyer';
+      feedback.textContent = "L'envoi automatique n'est pas encore configuré. Copie ton message ci-dessous.";
+      feedback.className = 'form-feedback error show';
+      showCopyFallback(type, outil, description, nom, email);
+      return;
+    }
+
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      type: type, outil: outil, feedback_message: description, nom: nom || 'Anonyme',
+      contact_email: email || 'Non renseigné'
+    }).then(() => {
+      document.querySelector('.form-panel').style.display = 'none';
+      document.getElementById('thankYouPanel').classList.add('show');
+      document.getElementById('thankYouPanel').focus();
+    }).catch((err) => {
+      console.error('Erreur EmailJS :', err);
+      submitBtn.disabled = false;
+      submitBtn.textContent = '📤 Envoyer';
+      feedback.textContent = "L'envoi a échoué. Copie ton message ci-dessous et envoyez-le manuellement.";
+      feedback.className = 'form-feedback error show';
+      showCopyFallback(type, outil, description, nom, email);
+    });
+  });
+
+  document.getElementById('copyFallbackBtn').addEventListener('click', async () => {
+    const text = document.getElementById('copyFallbackText').value;
+    const btn = document.getElementById('copyFallbackBtn');
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = '✅ Copié !';
+    } catch (e) {
+      document.getElementById('copyFallbackText').select();
+      btn.textContent = '📋 Sélectionné, faites Ctrl+C';
+    }
+    setTimeout(() => { btn.textContent = '📋 Copier le message'; }, 3000);
+  });
+
+  document.getElementById('sendAnotherBtn').addEventListener('click', () => {
+    document.getElementById('thankYouPanel').classList.remove('show');
+    document.querySelector('.form-panel').style.display = '';
+    feedback.textContent = '';
+    feedback.className = 'form-feedback';
+    document.getElementById('copyFallback').hidden = true;
+    submitBtn.disabled = false;
+    submitBtn.textContent = '📤 Envoyer';
+    form.reset();
+    document.getElementById('descriptionField').focus();
+  });
+})();
+</script>
+
+</body>
+</html>
